@@ -28,7 +28,7 @@ public class BertChunkerInference {
 
     private static final Map<String, SpecialToken> SPECIAL_TOKENS_MAP = new HashMap<>();
 
-    // 在BertChunkerInference类中添加一个静态Map用于存储当前处理文本的token到字符位置的映射
+    //静态Map用于存储当前处理文本的token到字符位置的映射
     private static final ThreadLocal<Map<Integer, Integer>> TOKEN_TO_CHAR_MAP =
             ThreadLocal.withInitial(HashMap::new);
 
@@ -65,12 +65,12 @@ public class BertChunkerInference {
     public static void loadSpecialTokens() {
         String jsonString;
         try (InputStream inputStream = BertChunkerInference.class.getResourceAsStream(SPECIAL_TOKENS_PATH)) {
-            if (inputStream == null) {
-                throw new IOException("未找到特殊Token资源: " + SPECIAL_TOKENS_PATH);
+            if (Objects.isNull(inputStream)) {
+                throw new IOException("未读取到" + SPECIAL_TOKENS_PATH);
             }
             jsonString = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException("无法加载特殊Token: " + e.getMessage(), e);
+            throw new RuntimeException("未找到特殊Token资源: " + e.getMessage(), e);
         }
         JSONObject jsonObject = JSONObject.parseObject(jsonString);
         for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
@@ -149,7 +149,6 @@ public class BertChunkerInference {
         inputs.put("input_ids", inputIds);
         inputs.put("attention_mask", attentionMask);
         inputs.put("token_type_ids", tokenTypeIds);
-//        inputs.put("input.3",tokenTypeIds);
 
         return inputs;
     }
@@ -190,7 +189,7 @@ public class BertChunkerInference {
                     int windowEnd = Math.min(totalLength, windowsStart + MAX_LENGTH);
                     // 获取当前窗口的文本
                     String windowText = text.substring(windowsStart, windowEnd);
-                    // 获取当前窗口的文本
+                    // 获取当前窗口的文本的token_ids
                     Map<String, long[]> inputs = tokenize(windowText);
 
                     // 执行推理
